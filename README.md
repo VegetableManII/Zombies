@@ -4,4 +4,5 @@
 
 ***代码在master分支***
 
-![](./game.png)
+![game](https://github.com/VegetableManII/Zombies-Game/blob/main/game.png)
+
