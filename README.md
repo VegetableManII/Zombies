@@ -4,5 +4,5 @@
 
 ***代码在master分支***
 
-![game](https://github.com/VegetableManII/Zombies-Game/blob/main/game.png)
+![game](https://www.hualigs.cn/image/607d19da001ad.jpg)
 
