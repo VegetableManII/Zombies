@@ -24,13 +24,13 @@ var ctx *audio.Context
 var hit []byte
 
 func init() {
-	fi, err := os.Stat("../Resources/music/kill.mp3")
+	fi, err := os.Stat("Resources/music/kill.mp3")
 	if err != nil {
 		log.Fatalf("utils.%s", err)
 	}
 	hit = make([]byte, fi.Size())
 	// 加载资源
-	f, err := os.Open("../Resources/music/kill.mp3")
+	f, err := os.Open("Resources/music/kill.mp3")
 	if err != nil {
 		log.Fatalf("utils.%s", err)
 	}
@@ -57,13 +57,13 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	img, _, err := ebitenutil.NewImageFromFile("../Resources/background0.jpg")
+	img, _, err := ebitenutil.NewImageFromFile("Resources/background0.jpg")
 	if err != nil {
 		log.Fatalf("utils.%s", err)
 	}
 	bg = img
 }
-func BackgroundUpdate(screen *ebiten.Image, screenWidth, screenHeight int) {
+func BackgroundUpdate(screen *ebiten.Image, screenWidth, screenHeight float64) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(float64(screenWidth/1920.0), float64(screenHeight/640.0))
 	screen.DrawImage(bg, op)

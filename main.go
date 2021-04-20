@@ -105,7 +105,7 @@ func (g *Game) updateZombies(screen *ebiten.Image) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	utils.BackgroundUpdate(screen, screenWidth, screenHeight)
+	utils.BackgroundUpdate(screen, float64(screenWidth), float64(screenHeight))
 	utils.FrontUpdate(screen, actors.GetZombieSpeed())
 	g.updateZombies(screen)
 	killer.SelfUpdate(screen)
