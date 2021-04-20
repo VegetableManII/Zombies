@@ -1,10 +1,9 @@
-package Actors
+package actors
 
 import (
 	"image"
 	_ "image/png"
 	"log"
-	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -22,7 +21,6 @@ type Killer struct {
 	killerOX, killerOY int
 
 	movX, movY int
-	mu         sync.RWMutex
 }
 
 var killerImage *ebiten.Image
@@ -47,8 +45,8 @@ func (k *Killer) AttackModle() bool {
 	return attackModle
 }
 
-// GetSubImage 获取killer的图像
-func (k *Killer) GetSubImage() image.Image {
+// GetSubImage 获killer的图像
+func (k *Killer) getSubImage() image.Image {
 	var img image.Image
 	// 感觉不用加锁也行？？
 	if !attackModle {
@@ -69,8 +67,6 @@ func (k *Killer) GetSubImage() image.Image {
 
 // SetMove x & y 是killer当前的位置
 func (k *Killer) SetMove(x, y int) {
-	k.mu.Lock()
-	defer k.mu.Unlock()
 	k.movX, k.movY = x, y
 	if x == -1 {
 		k.killerOY = 1
@@ -88,10 +84,18 @@ func (k *Killer) SetMove(x, y int) {
 }
 
 // GetPosition 获得killer的位置
-func (k *Killer) GetPosition() (int, int) {
-	k.mu.RLock()
-	defer k.mu.RUnlock()
+func (k *Killer) getPosition() (int, int) {
 	k.PosX = k.movX*k.Speed + k.PosX
 	k.PosY = k.movY*k.Speed + k.PosY
 	return k.PosX, k.PosY
+}
+func (k *Killer) SelfUpdate(screen *ebiten.Image) {
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(0.5, 0.5)
+	/*
+		更新killer的位置
+	*/
+	x, y := k.getPosition()
+	op.GeoM.Translate(float64(x), float64(y))
+	screen.DrawImage(k.getSubImage().(*ebiten.Image), op)
 }

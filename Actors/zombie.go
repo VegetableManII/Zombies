@@ -1,11 +1,11 @@
-package Actors
+package actors
 
 import (
 	"image"
 	_ "image/png"
 	"log"
-	"sync"
 
+	"github.com/VegetableManII/mygame/utils"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
@@ -22,7 +22,6 @@ type Zombie struct {
 	PosX, PosY            int
 	countZombie, zombie0Y int
 	movX, movY            int
-	mu                    sync.RWMutex
 	dead                  bool
 }
 
@@ -52,10 +51,7 @@ func init() {
 }
 func (z *Zombie) Dead() {
 	z.dead = true
-}
-func (z *Zombie) IsDead() bool {
-	// 应该不用上锁
-	return z.dead
+	utils.HitSound()
 }
 
 // SetMove x & y 是killer当前的位置
@@ -69,8 +65,6 @@ func (z *Zombie) SetMove(x, y int) {
 	// x,y 设置为距离 killer 的中心点
 	x, y = x+10, y+5
 	px := int(step)
-	z.mu.Lock()
-	defer z.mu.Unlock()
 	if y < z.PosY {
 		z.movY = -px
 		z.zombie0Y = 3
@@ -89,14 +83,12 @@ func (z *Zombie) SetMove(x, y int) {
 }
 
 // GetPosition 获得僵尸此次的运动方向
-func (z *Zombie) GetPosition() (int, int) {
-	z.mu.RLock()
-	defer z.mu.RUnlock()
+func (z *Zombie) getPosition() (int, int) {
 	z.PosX = z.movX + z.PosX
 	z.PosY = z.movY + z.PosY
 	return z.PosX, z.PosY
 }
-func (z *Zombie) GetSubImage() image.Image {
+func (z *Zombie) getSubImage() image.Image {
 	// TODO 根据不同的运动方向显示不同的图片
 	var img image.Image
 	if z.dead {
@@ -113,4 +105,11 @@ func (z *Zombie) GetSubImage() image.Image {
 		z.countZombie++
 	}
 	return img
+}
+func (z *Zombie) SelfUpdate(screen *ebiten.Image) {
+	x, y := z.getPosition()
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(0.5, 0.5)
+	op.GeoM.Translate(float64(x), float64(y))
+	screen.DrawImage(z.getSubImage().(*ebiten.Image), op)
 }
