@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/VegetableManII/mygame/actors"
+	actors "github.com/VegetableManII/mygame/actor"
 	"github.com/VegetableManII/mygame/utils"
 	"github.com/hajimehoshi/ebiten/v2"
 )

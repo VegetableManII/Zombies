@@ -1,4 +1,4 @@
-package actors
+package actor
 
 import (
 	"image"
