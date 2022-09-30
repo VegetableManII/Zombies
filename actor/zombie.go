@@ -20,6 +20,7 @@ const (
 
 type Zombie struct {
 	PosX, PosY            float64
+	Target                int
 	countZombie, zombie0Y int
 	movX, movY            float64
 	dead                  bool
@@ -56,17 +57,26 @@ func (z *Zombie) Dead() {
 }
 
 // SetMove x & y 是killer当前的位置
-func (z *Zombie) SetMove(x, y float64) {
+func (z *Zombie) SetMove(x0, y0, x1, y1 float64) {
 	if z.dead {
 		z.movX = 0
 		z.movY = 0
 		return
 	}
+	xx, yy := 0.0, 0.0
+	switch z.Target {
+	case 0:
+		xx = x0
+		yy = y0
+	case 1:
+		xx = x1
+		yy = y1
+	}
 	// x,y 为左上角
 	// x,y 设置为距离 killer 的中心点
-	x, y = x+10, y+5
+	xx, yy = xx+10, yy+5
 	px := step
-	if y < z.PosY {
+	if yy < z.PosY {
 		z.movY = -px
 		z.zombie0Y = 3
 	} else {
@@ -74,10 +84,10 @@ func (z *Zombie) SetMove(x, y float64) {
 		z.zombie0Y = 0
 	}
 	// 优化僵尸与猎手处于同一个Y轴的时候的僵尸朝向
-	if math.Abs(x-z.PosX) < 5.0 {
+	if math.Abs(xx-z.PosX) < 5.0 {
 		return
 	} else {
-		if x < z.PosX {
+		if xx < z.PosX {
 			z.movX = -px
 			z.zombie0Y = 1
 		} else {

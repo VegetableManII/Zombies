@@ -19,6 +19,7 @@ const (
 )
 
 var killer actors.Killer
+var killer2 actors.Killer2
 var zombies []*actors.Zombie
 var generateChan chan *actors.Zombie
 
@@ -38,7 +39,7 @@ func init() {
 			<-ticker.C
 			rand.Seed(time.Now().Unix())
 			x, y := rand.Intn(screenWidth), rand.Intn(screenHeight)
-			z := &actors.Zombie{PosX: float64(x), PosY: float64(y)}
+			z := &actors.Zombie{PosX: float64(x), PosY: float64(y), Target: (x + y) % 2} // 随机锁定一个敌人
 			generateChan <- z
 		}
 	}()
@@ -58,6 +59,7 @@ func (g *Game) Update() error {
 	/*
 		读取键盘输入
 	*/
+	// P1 输入
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
 		actors.SetZombieSpeed(actors.GetZombieSpeed() + 0.01)
 	}
@@ -78,16 +80,40 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyJ) {
 		killer.Attack()
 	}
+	// P2 输入
+	x, y = 0, 0
+	if ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
+		y = -1
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
+		y = 1
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
+		x = -1
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
+		x = 1
+	}
+	killer2.SetMove(float64(x), float64(y))
+	if ebiten.IsKeyPressed(ebiten.KeyNumpad0) {
+		killer2.Attack()
+	}
 
 	/* 根据killer的位置更新僵尸的走向 */
 	// TODO x,y := killer.Position()
 	for i := range zombies {
-		xrange := math.Abs(float64(killer.PosX + 10 - zombies[i].PosX))
-		yrange := math.Abs(float64(killer.PosY + 5 - zombies[i].PosY))
-		if xrange < 10.0 && yrange < 20.0 && killer.AttackModle() {
+		p1xrange := math.Abs(float64(killer.PosX + 10 - zombies[i].PosX))
+		p1yrange := math.Abs(float64(killer.PosY + 5 - zombies[i].PosY))
+		// 增加对P2的判断
+		p2xrange := math.Abs(float64(killer2.PosX + 40 - zombies[i].PosX))
+		p2yrange := math.Abs(float64(killer2.PosY + 40 - zombies[i].PosY))
+		if p1xrange < 10.0 && p1yrange < 5.0 && killer.AttackModle() {
 			zombies[i].Dead()
 		}
-		zombies[i].SetMove(killer.PosX, killer.PosY)
+		if p2xrange < 10.0 && p2yrange < 5.0 && killer2.AttackModle() {
+			zombies[i].Dead()
+		}
+		zombies[i].SetMove(killer.PosX, killer.PosY, killer2.PosX, killer2.PosY)
 	}
 	return nil
 }
@@ -109,6 +135,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	utils.FrontUpdate(screen, actors.GetZombieSpeed())
 	g.updateZombies(screen)
 	killer.SelfUpdate(screen)
+	killer2.SelfUpdate(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -119,9 +146,13 @@ func main() {
 	fmt.Printf("游戏开始...\n")
 
 	// 放置killer
-	killer.PosX = screenWidth / 2
+	killer.PosX = screenWidth/2 - 4
 	killer.PosY = screenHeight / 2
 	killer.Speed = 2
+
+	killer2.PosX = screenWidth/2 + 4
+	killer2.PosY = screenHeight / 2
+	killer2.Speed = 2
 
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
 	ebiten.SetWindowTitle("Zombies~~")
