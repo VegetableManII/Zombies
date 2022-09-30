@@ -16,11 +16,11 @@ const (
 )
 
 type Killer struct {
-	PosX, PosY         int
-	Speed              int
+	PosX, PosY         float64
+	Speed              float64
 	killerOX, killerOY int
 
-	movX, movY int
+	movX, movY float64
 }
 
 var killerImage *ebiten.Image
@@ -66,7 +66,7 @@ func (k *Killer) getSubImage() image.Image {
 }
 
 // SetMove x & y 是killer当前的位置
-func (k *Killer) SetMove(x, y int) {
+func (k *Killer) SetMove(x, y float64) {
 	k.movX, k.movY = x, y
 	if x == -1 {
 		k.killerOY = 1
@@ -84,7 +84,7 @@ func (k *Killer) SetMove(x, y int) {
 }
 
 // GetPosition 获得killer的位置
-func (k *Killer) getPosition() (int, int) {
+func (k *Killer) getPosition() (float64, float64) {
 	k.PosX = k.movX*k.Speed + k.PosX
 	k.PosY = k.movY*k.Speed + k.PosY
 	return k.PosX, k.PosY

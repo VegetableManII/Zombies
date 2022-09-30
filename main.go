@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
+	"github.com/hajimehoshi/ebiten/v2"
 	"log"
 	"math"
 	"math/rand"
 	"sync"
 	"time"
 
-	actors "github.com/VegetableManII/mygame/actor"
-	"github.com/VegetableManII/mygame/utils"
-	"github.com/hajimehoshi/ebiten/v2"
+	actors "github.com/VegetableManII/Zombies/actor"
+	"github.com/VegetableManII/Zombies/utils"
 )
 
 const (
@@ -38,7 +38,7 @@ func init() {
 			<-ticker.C
 			rand.Seed(time.Now().Unix())
 			x, y := rand.Intn(screenWidth), rand.Intn(screenHeight)
-			z := &actors.Zombie{PosX: x, PosY: y}
+			z := &actors.Zombie{PosX: float64(x), PosY: float64(y)}
 			generateChan <- z
 		}
 	}()
@@ -74,7 +74,7 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyD) {
 		x = 1
 	}
-	killer.SetMove(x, y)
+	killer.SetMove(float64(x), float64(y))
 	if ebiten.IsKeyPressed(ebiten.KeyJ) {
 		killer.Attack()
 	}

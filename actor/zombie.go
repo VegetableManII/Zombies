@@ -1,13 +1,13 @@
 package actor
 
 import (
+	"github.com/VegetableManII/Zombies/utils"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"image"
 	_ "image/png"
 	"log"
-
-	"github.com/VegetableManII/mygame/utils"
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"math"
 )
 
 const (
@@ -19,15 +19,16 @@ const (
 )
 
 type Zombie struct {
-	PosX, PosY            int
+	PosX, PosY            float64
 	countZombie, zombie0Y int
-	movX, movY            int
+	movX, movY            float64
 	dead                  bool
 }
 
 var zombieImage *ebiten.Image
 var zombieDiedImage *ebiten.Image
 var step float64
+var zomRefreshRate int = 20
 
 // SetZombieSpeed 设置僵尸的移动速度
 func SetZombieSpeed(speed float64) {
@@ -47,7 +48,7 @@ func init() {
 		log.Fatalf("Actor.%s", err)
 	}
 	zombieDiedImage = img
-	SetZombieSpeed(1)
+	SetZombieSpeed(0.5)
 }
 func (z *Zombie) Dead() {
 	z.dead = true
@@ -55,7 +56,7 @@ func (z *Zombie) Dead() {
 }
 
 // SetMove x & y 是killer当前的位置
-func (z *Zombie) SetMove(x, y int) {
+func (z *Zombie) SetMove(x, y float64) {
 	if z.dead {
 		z.movX = 0
 		z.movY = 0
@@ -64,7 +65,7 @@ func (z *Zombie) SetMove(x, y int) {
 	// x,y 为左上角
 	// x,y 设置为距离 killer 的中心点
 	x, y = x+10, y+5
-	px := int(step)
+	px := step
 	if y < z.PosY {
 		z.movY = -px
 		z.zombie0Y = 3
@@ -72,18 +73,23 @@ func (z *Zombie) SetMove(x, y int) {
 		z.movY = px
 		z.zombie0Y = 0
 	}
-	if x < z.PosX {
-		z.movX = -px
-		z.zombie0Y = 1
+	// 优化僵尸与猎手处于同一个Y轴的时候的僵尸朝向
+	if math.Abs(x-z.PosX) < 5.0 {
+		return
 	} else {
-		z.movX = px
-		z.zombie0Y = 2
+		if x < z.PosX {
+			z.movX = -px
+			z.zombie0Y = 1
+		} else {
+			z.movX = px
+			z.zombie0Y = 2
+		}
 	}
 	return
 }
 
 // GetPosition 获得僵尸此次的运动方向
-func (z *Zombie) getPosition() (int, int) {
+func (z *Zombie) getPosition() (float64, float64) {
 	z.PosX = z.movX + z.PosX
 	z.PosY = z.movY + z.PosY
 	return z.PosX, z.PosY
@@ -95,13 +101,13 @@ func (z *Zombie) getSubImage() image.Image {
 		z.countZombie = 0
 		img = zombieDiedImage.SubImage(image.Rect(z.countZombie*zombie1FrameWidth, z.zombie0Y*zombie1FrameHeight,
 			z.countZombie*zombie1FrameWidth+zombie1FrameWidth, z.zombie0Y*zombie1FrameHeight+zombie1FrameHeight))
-		z.countZombie++
 	} else {
-		if z.countZombie == 4 {
+		if z.countZombie == zomRefreshRate*4 {
 			z.countZombie = 0
 		}
-		img = zombieImage.SubImage(image.Rect(z.countZombie*zombie0FrameWidth, z.zombie0Y*zombie0FrameHeight,
-			z.countZombie*zombie0FrameWidth+zombie0FrameWidth, z.zombie0Y*zombie0FrameHeight+zombie0FrameHeight))
+		pixCount := int(z.countZombie / zomRefreshRate)
+		img = zombieImage.SubImage(image.Rect(pixCount*zombie0FrameWidth, z.zombie0Y*zombie0FrameHeight,
+			pixCount*zombie0FrameWidth+zombie0FrameWidth, z.zombie0Y*zombie0FrameHeight+zombie0FrameHeight))
 		z.countZombie++
 	}
 	return img

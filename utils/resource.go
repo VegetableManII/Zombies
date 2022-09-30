@@ -35,7 +35,8 @@ func init() {
 		log.Fatalf("utils.%s", err)
 	}
 	ctx = audio.NewContext(44100)
-	s, err := mp3.Decode(ctx, f)
+	s, err := mp3.DecodeWithSampleRate(44100, f)
+	// s, err := mp3.Decode(ctx, f)
 	if err != nil {
 		log.Fatalf("utils.%s", err)
 	}
@@ -73,6 +74,6 @@ func FrontUpdate(screen *ebiten.Image, speed float64) {
 	text.Draw(screen, fps, pressStart2pFont, 0, 20, color.Black)
 }
 func HitSound() {
-	p := audio.NewPlayerFromBytes(ctx, hit)
+	p := ctx.NewPlayerFromBytes(hit)
 	p.Play()
 }
