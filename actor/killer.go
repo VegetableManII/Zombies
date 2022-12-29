@@ -1,12 +1,11 @@
 package actor
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"image"
 	_ "image/png"
 	"log"
-
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 const (
@@ -18,6 +17,7 @@ const (
 type Killer struct {
 	PosX, PosY         float64
 	Speed              float64
+	Scale              float64
 	killerOX, killerOY int
 
 	movX, movY float64
@@ -98,4 +98,12 @@ func (k *Killer) SelfUpdate(screen *ebiten.Image) {
 	x, y := k.getPosition()
 	op.GeoM.Translate(float64(x), float64(y))
 	screen.DrawImage(k.getSubImage().(*ebiten.Image), op)
+}
+
+func (k *Killer) HitArea(x, y float64) bool {
+	rigth := k.PosX + 20*k.Scale // 35
+	left := k.PosX - 20*k.Scale
+	up := k.PosY - 10*k.Scale // 35
+	down := k.PosY + 10*k.Scale
+	return (x < rigth && x > left && y > up && y < down) && k.AttackModle()
 }

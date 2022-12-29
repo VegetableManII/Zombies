@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"log"
-	"math"
 	"math/rand"
 	"sync"
 	"time"
@@ -102,15 +101,10 @@ func (g *Game) Update() error {
 	/* 根据killer的位置更新僵尸的走向 */
 	// TODO x,y := killer.Position()
 	for i := range zombies {
-		p1xrange := math.Abs(float64(killer.PosX + 10 - zombies[i].PosX))
-		p1yrange := math.Abs(float64(killer.PosY + 5 - zombies[i].PosY))
-		// 增加对P2的判断
-		p2xrange := math.Abs(float64(killer2.PosX + 40 - zombies[i].PosX))
-		p2yrange := math.Abs(float64(killer2.PosY + 40 - zombies[i].PosY))
-		if p1xrange < 10.0 && p1yrange < 5.0 && killer.AttackModle() {
+		if killer.HitArea(zombies[i].PosX, zombies[i].PosY) {
 			zombies[i].Dead()
 		}
-		if p2xrange < 10.0 && p2yrange < 5.0 && killer2.AttackModle() {
+		if killer2.HitArea(zombies[i].PosX, zombies[i].PosY) {
 			zombies[i].Dead()
 		}
 		zombies[i].SetMove(killer.PosX, killer.PosY, killer2.PosX, killer2.PosY)
@@ -149,10 +143,13 @@ func main() {
 	killer.PosX = screenWidth/2 - 4
 	killer.PosY = screenHeight / 2
 	killer.Speed = 2
+	killer.Scale = 0.5
 
 	killer2.PosX = screenWidth/2 + 4
 	killer2.PosY = screenHeight / 2
 	killer2.Speed = 2
+	killer2.RefreshRates = 4
+	killer2.Scale = 0.4
 
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
 	ebiten.SetWindowTitle("Zombies~~")

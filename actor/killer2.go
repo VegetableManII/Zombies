@@ -13,13 +13,15 @@ const (
 )
 
 type Killer2 struct {
-	PosX, PosY         float64
-	Speed              float64
-	killerOX, killerOY int
+	PosX, PosY   float64
+	Speed        float64
+	Scale        float64
+	RefreshRates int
 
-	movX, movY  float64
-	attackModle bool
-	countKiller int
+	killerOX, killerOY int
+	movX, movY         float64
+	attackModle        bool
+	countKiller        int
 }
 
 var killer2Image *ebiten.Image
@@ -48,12 +50,12 @@ func (k *Killer2) getSubImage() image.Image {
 		k.countKiller = 0
 		img = killer2Image.SubImage(image.Rect(0, k.killerOY*killer2FrameHeight, 0+killer2FrameWidth, k.killerOY*killer2FrameHeight+killer2FrameHeight))
 	} else {
-		if k.countKiller == 4 {
+		if k.countKiller == k.RefreshRates*4 {
 			k.countKiller = 0
 			k.attackModle = false
-
 		}
-		img = killer2Image.SubImage(image.Rect(k.countKiller*killer2FrameWidth, k.killerOY*killer2FrameHeight, k.countKiller*killer2FrameWidth+killer2FrameWidth, k.killerOY*killer2FrameHeight+killer2FrameHeight))
+		pixCount := k.countKiller / k.RefreshRates
+		img = killer2Image.SubImage(image.Rect(pixCount*killer2FrameWidth, k.killerOY*killer2FrameHeight, pixCount*killer2FrameWidth+killer2FrameWidth, k.killerOY*killer2FrameHeight+killer2FrameHeight))
 		k.countKiller++
 	}
 
@@ -86,11 +88,18 @@ func (k *Killer2) getPosition() (float64, float64) {
 }
 func (k *Killer2) SelfUpdate(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(0.5, 0.5)
+	op.GeoM.Scale(0.4, 0.4)
 	/*
 		更新killer的位置
 	*/
 	x, y := k.getPosition()
 	op.GeoM.Translate(float64(x), float64(y))
 	screen.DrawImage(k.getSubImage().(*ebiten.Image), op)
+}
+func (k *Killer2) HitArea(x, y float64) bool {
+	rigth := k.PosX + 70*k.Scale // 80
+	left := k.PosX - 70*k.Scale
+	up := k.PosY - 40*k.Scale // 80
+	down := k.PosY + 40*k.Scale
+	return (x < rigth && x > left && y > up && y < down) && k.AttackModle()
 }
