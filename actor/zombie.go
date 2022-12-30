@@ -109,8 +109,8 @@ func (z *Zombie) getSubImage() image.Image {
 	var img image.Image
 	if z.dead {
 		z.countZombie = 0
-		img = zombieDiedImage.SubImage(image.Rect(z.countZombie*zombie1FrameWidth, z.zombie0Y*zombie1FrameHeight,
-			z.countZombie*zombie1FrameWidth+zombie1FrameWidth, z.zombie0Y*zombie1FrameHeight+zombie1FrameHeight))
+		img = zombieDiedImage.SubImage(image.Rect(0, z.zombie0Y*zombie1FrameHeight,
+			0+zombie1FrameWidth, z.zombie0Y*zombie1FrameHeight+zombie1FrameHeight))
 	} else {
 		if z.countZombie == zomRefreshRate*4 {
 			z.countZombie = 0
@@ -122,6 +122,7 @@ func (z *Zombie) getSubImage() image.Image {
 	}
 	return img
 }
+
 func (z *Zombie) SelfUpdate(screen *ebiten.Image) {
 	x, y := z.getPosition()
 	op := &ebiten.DrawImageOptions{}

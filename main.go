@@ -17,7 +17,7 @@ const (
 	screenHeight = 220
 )
 
-var killer actors.Killer
+var killer1 actors.Killer1
 var killer2 actors.Killer2
 var zombies []*actors.Zombie
 var generateChan chan *actors.Zombie
@@ -75,9 +75,9 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyD) {
 		x = 1
 	}
-	killer.SetMove(float64(x), float64(y))
+	killer1.SetMove(float64(x), float64(y))
 	if ebiten.IsKeyPressed(ebiten.KeyJ) {
-		killer.Attack()
+		killer1.Attack()
 	}
 	// P2 输入
 	x, y = 0, 0
@@ -101,13 +101,13 @@ func (g *Game) Update() error {
 	/* 根据killer的位置更新僵尸的走向 */
 	// TODO x,y := killer.Position()
 	for i := range zombies {
-		if killer.HitArea(zombies[i].PosX, zombies[i].PosY) {
+		if killer1.HitArea(zombies[i].PosX, zombies[i].PosY) {
 			zombies[i].Dead()
 		}
 		if killer2.HitArea(zombies[i].PosX, zombies[i].PosY) {
 			zombies[i].Dead()
 		}
-		zombies[i].SetMove(killer.PosX, killer.PosY, killer2.PosX, killer2.PosY)
+		zombies[i].SetMove(killer1.PosX, killer1.PosY, killer2.PosX, killer2.PosY)
 	}
 	return nil
 }
@@ -128,7 +128,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	utils.BackgroundUpdate(screen, float64(screenWidth), float64(screenHeight))
 	utils.FrontUpdate(screen, actors.GetZombieSpeed())
 	g.updateZombies(screen)
-	killer.SelfUpdate(screen)
+	killer1.SelfUpdate(screen)
 	killer2.SelfUpdate(screen)
 }
 
@@ -140,10 +140,11 @@ func main() {
 	fmt.Printf("游戏开始...\n")
 
 	// 放置killer
-	killer.PosX = screenWidth/2 - 4
-	killer.PosY = screenHeight / 2
-	killer.Speed = 2
-	killer.Scale = 0.5
+	killer1.PosX = screenWidth/2 - 4
+	killer1.PosY = screenHeight / 2
+	killer1.Speed = 2
+	killer1.RefreshRates = 2
+	killer1.Scale = 0.5
 
 	killer2.PosX = screenWidth/2 + 4
 	killer2.PosY = screenHeight / 2

@@ -17,11 +17,10 @@ type Killer2 struct {
 	Speed        float64
 	Scale        float64
 	RefreshRates int
-
-	killerOX, killerOY int
-	movX, movY         float64
-	attackModle        bool
-	countKiller        int
+	Direction    int
+	movX, movY   float64
+	attackModle  bool
+	countKiller  int
 }
 
 var killer2Image *ebiten.Image
@@ -45,20 +44,18 @@ func (k *Killer2) AttackModle() bool {
 // GetSubImage 获killer的图像
 func (k *Killer2) getSubImage() image.Image {
 	var img image.Image
-	// 感觉不用加锁也行？？
 	if !k.attackModle {
 		k.countKiller = 0
-		img = killer2Image.SubImage(image.Rect(0, k.killerOY*killer2FrameHeight, 0+killer2FrameWidth, k.killerOY*killer2FrameHeight+killer2FrameHeight))
+		img = killer2Image.SubImage(image.Rect(0, k.Direction*killer2FrameHeight, 0+killer2FrameWidth, k.Direction*killer2FrameHeight+killer2FrameHeight))
 	} else {
 		if k.countKiller == k.RefreshRates*4 {
 			k.countKiller = 0
 			k.attackModle = false
 		}
 		pixCount := k.countKiller / k.RefreshRates
-		img = killer2Image.SubImage(image.Rect(pixCount*killer2FrameWidth, k.killerOY*killer2FrameHeight, pixCount*killer2FrameWidth+killer2FrameWidth, k.killerOY*killer2FrameHeight+killer2FrameHeight))
+		img = killer2Image.SubImage(image.Rect(pixCount*killer2FrameWidth, k.Direction*killer2FrameHeight, pixCount*killer2FrameWidth+killer2FrameWidth, k.Direction*killer2FrameHeight+killer2FrameHeight))
 		k.countKiller++
 	}
-
 	return img
 }
 
@@ -66,16 +63,16 @@ func (k *Killer2) getSubImage() image.Image {
 func (k *Killer2) SetMove(x, y float64) {
 	k.movX, k.movY = x, y
 	if x == -1 {
-		k.killerOY = 1
+		k.Direction = 1
 	}
 	if x == 1 {
-		k.killerOY = 2
+		k.Direction = 2
 	}
 	if y == -1 {
-		k.killerOY = 3
+		k.Direction = 3
 	}
 	if y == 1 {
-		k.killerOY = 0
+		k.Direction = 0
 	}
 
 }
@@ -86,9 +83,10 @@ func (k *Killer2) getPosition() (float64, float64) {
 	k.PosY = k.movY*k.Speed + k.PosY
 	return k.PosX, k.PosY
 }
+
 func (k *Killer2) SelfUpdate(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(0.4, 0.4)
+	op.GeoM.Scale(k.Scale, k.Scale)
 	/*
 		更新killer的位置
 	*/
