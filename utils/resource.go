@@ -70,7 +70,7 @@ func BackgroundUpdate(screen *ebiten.Image, screenWidth, screenHeight float64) {
 	screen.DrawImage(bg, op)
 }
 func FrontUpdate(screen *ebiten.Image, speed float64) {
-	fps := fmt.Sprintf("FPS:%0.2f Speed:%0.2fpx/tick\nWASD move J attack", ebiten.CurrentFPS(), speed)
+	fps := fmt.Sprintf("FPS:%0.2f Speed:%0.2fpx/tick\nWASD move J attack\n↑←↓→ move num0 attack", ebiten.ActualFPS(), speed)
 	text.Draw(screen, fps, pressStart2pFont, 0, 20, color.Black)
 }
 func HitSound() {

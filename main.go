@@ -100,14 +100,24 @@ func (g *Game) Update() error {
 
 	/* 根据killer的位置更新僵尸的走向 */
 	// TODO x,y := killer.Position()
+	someOneDead := false
 	for i := range zombies {
 		if killer1.HitArea(zombies[i].PosX, zombies[i].PosY) {
+			if !zombies[i].IsDead() {
+				someOneDead = true
+			}
 			zombies[i].Dead()
 		}
 		if killer2.HitArea(zombies[i].PosX, zombies[i].PosY) {
+			if !zombies[i].IsDead() {
+				someOneDead = true
+			}
 			zombies[i].Dead()
 		}
 		zombies[i].SetMove(killer1.PosX, killer1.PosY, killer2.PosX, killer2.PosY)
+	}
+	if someOneDead {
+		utils.HitSound()
 	}
 	return nil
 }

@@ -1,7 +1,6 @@
 package actor
 
 import (
-	"github.com/VegetableManII/Zombies/utils"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"image"
@@ -53,7 +52,10 @@ func init() {
 }
 func (z *Zombie) Dead() {
 	z.dead = true
-	utils.HitSound()
+}
+
+func (z *Zombie) IsDead() bool {
+	return z.dead
 }
 
 // SetMove x & y 是killer当前的位置
