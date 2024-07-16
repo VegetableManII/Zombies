@@ -6,7 +6,6 @@ import (
 	"image"
 	_ "image/png"
 	"log"
-	"math"
 )
 
 const (
@@ -86,16 +85,12 @@ func (z *Zombie) SetMove(x0, y0, x1, y1 float64) {
 		z.zombie0Y = 0
 	}
 	// 优化僵尸与猎手处于同一个Y轴的时候的僵尸朝向
-	if math.Abs(xx-z.PosX) < 5.0 {
-		return
+	if xx < z.PosX {
+		z.movX = -px
+		z.zombie0Y = 1
 	} else {
-		if xx < z.PosX {
-			z.movX = -px
-			z.zombie0Y = 1
-		} else {
-			z.movX = px
-			z.zombie0Y = 2
-		}
+		z.movX = px
+		z.zombie0Y = 2
 	}
 	return
 }
